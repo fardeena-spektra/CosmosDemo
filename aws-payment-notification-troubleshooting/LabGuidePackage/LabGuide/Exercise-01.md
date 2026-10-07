@@ -102,7 +102,6 @@ Select **Validate** to check the complete bucket repair. The validation checks t
 
 <validation step="01b7992c-38d6-45be-835b-8f81b75fa69f"/>
 
-</div>
 
 If validation reports a missing item, return to the relevant S3 tab, correct it, and select **Validate** again.
 
