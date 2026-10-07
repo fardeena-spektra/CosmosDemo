@@ -1,0 +1,161 @@
+{
+  "packageId": "5251fca5-78c6-4ad5-916c-72c11c6cd58a",
+  "slug": "aws-payment-notification-troubleshooting-D2bRz",
+  "title": "AWS Payment Notification Troubleshooting",
+  "version": 1,
+  "exportedAt": "2026-10-07T15:34:01.522Z",
+  "force": false,
+  "deliverableConfig": {
+    "arm": {
+      "stages": 1,
+      "enabled": true
+    },
+    "cse": {
+      "enabled": false
+    },
+    "rbac": {
+      "enabled": true
+    },
+    "policy": {
+      "enabled": true
+    },
+    "readme": {
+      "enabled": true
+    },
+    "labGuide": {
+      "enabled": true,
+      "exercises": 3
+    },
+    "solution": {
+      "enabled": true
+    },
+    "questions": {
+      "count": 6,
+      "enabled": true
+    },
+    "specSheet": {
+      "enabled": true
+    },
+    "validations": {
+      "count": 2,
+      "enabled": true
+    }
+  },
+  "artifacts": [
+    {
+      "path": "DeploymentPackage/deploy-01.json",
+      "kind": "cft",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "DeploymentPackage/deploy-01.parameters.json",
+      "kind": "cft_params",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "Inline-Questions/question-01.md",
+      "kind": "question_md",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "Inline-Questions/question-02.md",
+      "kind": "question_md",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "Inline-Questions/question-03.md",
+      "kind": "question_md",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "Inline-Questions/question-04.md",
+      "kind": "question_md",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "Inline-Questions/question-05.md",
+      "kind": "question_md",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "Inline-Questions/question-06.md",
+      "kind": "question_md",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "LabGuidePackage/Lab Guide/Lab Guide/Exercise-01.md",
+      "kind": "exercise_md",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "LabGuidePackage/Lab Guide/Lab Guide/Exercise-02.md",
+      "kind": "exercise_md",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "LabGuidePackage/Lab Guide/Lab Guide/Exercise-03.md",
+      "kind": "exercise_md",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "LabGuidePackage/Lab Guide/Lab Guide/GettingStarted-V2.md",
+      "kind": "getting_started",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "LabGuidePackage/masterdoc.json",
+      "kind": "masterdoc",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "permissions/CustomIAMPolicy/aws-scp.json",
+      "kind": "policy_json",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "permissions/CustomIAMPolicy/iam-custom-policy.json",
+      "kind": "policy_json",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "README.md",
+      "kind": "readme_md",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "solution-guide/solution.md",
+      "kind": "solution_md",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "Spec.md",
+      "kind": "spec_md",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "Validations/02-Lambda Function.ps1",
+      "kind": "validation_ps1",
+      "lintStatus": "passed"
+    },
+    {
+      "path": "Validations/S3 Bucket.ps1",
+      "kind": "validation_ps1",
+      "lintStatus": "warn"
+    }
+  ],
+  "errors": [],
+  "coherence": [
+    {
+      "severity": "info",
+      "rule": "coherence-validation-step-unmatched",
+      "message": "Validation step \"1\" has no clearly-matching validation script under Validations/. Confirm a backing .ps1/.sh exists.",
+      "artifactPath": "LabGuidePackage/Lab Guide/Lab Guide/Exercise-01.md"
+    }
+  ],
+  "runnability": {
+    "issues": [],
+    "blocking": 0,
+    "warning": 0,
+    "info": 0
+  }
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "order": 1,
+    "title": "Getting Started",
+    "Files": [
+      {
+        "RawFilePath": "https://raw.githubusercontent.com/fardeena-spektra/CosmosDemo/main/LabGuidePackage/LabGuide/GettingStarted-V2.md",
+        "Order": 1
+      }
+    ]
+  },
+  {
+    "order": 2,
+    "title": "Exercise 1: Repair the PAYNOTIFY Statements Bucket",
+    "Files": [
+      {
+        "RawFilePath": "https://raw.githubusercontent.com/fardeena-spektra/CosmosDemo/main/LabGuidePackage/LabGuide/Exercise-01.md",
+        "Order": 2
+      }
+    ]
+  },
+  {
+    "order": 3,
+    "title": "Exercise 2: Repair the PAYNOTIFY Notification Function",
+    "Files": [
+      {
+        "RawFilePath": "https://raw.githubusercontent.com/fardeena-spektra/CosmosDemo/main/LabGuidePackage/LabGuide/Exercise-02.md",
+        "Order": 3
+      }
+    ]
+  },
+  {
+    "order": 4,
+    "title": "Exercise 3: Review the PAYNOTIFY Network Basics",
+    "Files": [
+      {
+        "RawFilePath": "https://raw.githubusercontent.com/fardeena-spektra/CosmosDemo/main/LabGuidePackage/LabGuide/Exercise-03.md",
+        "Order": 4
+      }
+    ]
+  }
+]

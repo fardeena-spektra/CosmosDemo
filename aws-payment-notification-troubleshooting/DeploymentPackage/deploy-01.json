@@ -1,0 +1,79 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "CloudLabs AWS PAYNOTIFY troubleshooting environment",
+  "Parameters": {
+    "CloudLabsDeploymentID": { "Type": "String", "Description": "CloudLabs deployment identifier." },
+    "CheckAcknowledgement": { "Type": "String", "Default": "true", "Description": "CloudLabs deployment acknowledgement flag." },
+    "vpcCidr": { "Type": "String", "Default": "10.10.0.0/16" },
+    "subnetCidr": { "Type": "String", "Default": "10.10.1.0/24" },
+    "AmazonECSTaskExecutionRolePolicy": { "Type": "String", "Default": "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy" },
+    "VMUserName": { "Type": "String", "Default": "cloudlabsadmin" },
+    "VMPassword": { "Type": "String", "NoEcho": true, "MinLength": 12 }
+  },
+  "Resources": {
+    "TaskExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": { "Version": "2012-10-17", "Statement": [{ "Effect": "Allow", "Principal": { "Service": "ecs-tasks.amazonaws.com" }, "Action": "sts:AssumeRole" }] },
+        "ManagedPolicyArns": [{ "Ref": "AmazonECSTaskExecutionRolePolicy" }],
+        "Path": "/"
+      }
+    },
+    "SSMRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": { "Version": "2012-10-17", "Statement": [{ "Effect": "Allow", "Principal": { "Service": "ec2.amazonaws.com" }, "Action": "sts:AssumeRole" }] },
+        "ManagedPolicyArns": ["arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"],
+        "Path": "/"
+      }
+    },
+    "SSMInstanceProfile": { "Type": "AWS::IAM::InstanceProfile", "Properties": { "Path": "/", "Roles": [{ "Ref": "SSMRole" }] } },
+    "clgVpc": { "Type": "AWS::EC2::VPC", "Properties": { "CidrBlock": { "Ref": "vpcCidr" }, "EnableDnsHostnames": true, "EnableDnsSupport": true, "Tags": [{ "Key": "Name", "Value": { "Fn::Sub": "paynotify-vpc-${CloudLabsDeploymentID}" } }, { "Key": "aws-apn-id", "Value": "pc:7finjv2fdluw3t9gvedjkgubj" }] } },
+    "clgInternetGateway": { "Type": "AWS::EC2::InternetGateway", "Properties": { "Tags": [{ "Key": "Name", "Value": { "Fn::Sub": "paynotify-igw-${CloudLabsDeploymentID}" } }, { "Key": "aws-apn-id", "Value": "pc:7finjv2fdluw3t9gvedjkgubj" }] } },
+    "VpcGatewayAttachment": { "Type": "AWS::EC2::VPCGatewayAttachment", "Properties": { "InternetGatewayId": { "Ref": "clgInternetGateway" }, "VpcId": { "Ref": "clgVpc" } } },
+    "vmSubnet": { "Type": "AWS::EC2::Subnet", "Properties": { "VpcId": { "Ref": "clgVpc" }, "CidrBlock": { "Ref": "subnetCidr" }, "AvailabilityZone": "us-east-1a", "MapPublicIpOnLaunch": true, "Tags": [{ "Key": "Name", "Value": { "Fn::Sub": "paynotify-subnet-${CloudLabsDeploymentID}" } }, { "Key": "aws-apn-id", "Value": "pc:7finjv2fdluw3t9gvedjkgubj" }] } },
+    "RouteTable": { "Type": "AWS::EC2::RouteTable", "Properties": { "VpcId": { "Ref": "clgVpc" }, "Tags": [{ "Key": "Name", "Value": { "Fn::Sub": "paynotify-public-rt-${CloudLabsDeploymentID}" } }, { "Key": "aws-apn-id", "Value": "pc:7finjv2fdluw3t9gvedjkgubj" }] } },
+    "DefaultRoute": { "Type": "AWS::EC2::Route", "DependsOn": "VpcGatewayAttachment", "Properties": { "RouteTableId": { "Ref": "RouteTable" }, "DestinationCidrBlock": "0.0.0.0/0", "GatewayId": { "Ref": "clgInternetGateway" } } },
+    "SubnetRouteTableAssociation": { "Type": "AWS::EC2::SubnetRouteTableAssociation", "Properties": { "SubnetId": { "Ref": "vmSubnet" }, "RouteTableId": { "Ref": "RouteTable" } } },
+    "vmSecurityGroup": { "Type": "AWS::EC2::SecurityGroup", "Properties": { "GroupDescription": "PAYNOTIFY Windows workstation access", "VpcId": { "Ref": "clgVpc" }, "SecurityGroupIngress": [{ "IpProtocol": "tcp", "FromPort": 3389, "ToPort": 3389, "CidrIp": "0.0.0.0/0" }, { "IpProtocol": "tcp", "FromPort": 443, "ToPort": 443, "CidrIp": "0.0.0.0/0" }], "Tags": [{ "Key": "Name", "Value": { "Fn::Sub": "paynotify-vm-sg-${CloudLabsDeploymentID}" } }, { "Key": "aws-apn-id", "Value": "pc:7finjv2fdluw3t9gvedjkgubj" }] } },
+    "clgSg": { "Type": "AWS::EC2::SecurityGroup", "Properties": { "GroupDescription": "CloudLabs cluster security group", "VpcId": { "Ref": "clgVpc" }, "Tags": [{ "Key": "Name", "Value": { "Fn::Sub": "paynotify-clg-sg-${CloudLabsDeploymentID}" } }, { "Key": "aws-apn-id", "Value": "pc:7finjv2fdluw3t9gvedjkgubj" }] } },
+    "vmInstance": {
+      "Type": "AWS::EC2::Instance",
+      "DependsOn": "VpcGatewayAttachment",
+      "Properties": {
+        "ImageId": { "Fn::Sub": "{{resolve:ssm:/aws/service/ami-windows-latest/Windows_Server-2022-English-Full-Base}}" },
+        "InstanceType": "t3.medium",
+        "IamInstanceProfile": { "Ref": "SSMInstanceProfile" },
+        "SubnetId": { "Ref": "vmSubnet" },
+        "SecurityGroupIds": [{ "Ref": "vmSecurityGroup" }],
+        "Tags": [{ "Key": "Name", "Value": { "Fn::Sub": "paynotify-vm-${CloudLabsDeploymentID}" } }, { "Key": "aws-apn-id", "Value": "pc:7finjv2fdluw3t9gvedjkgubj" }],
+        "UserData": { "Fn::Base64": { "Fn::Sub": "<powershell>\n$ErrorActionPreference = 'Continue'\n$u = '${VMUserName}'\n$p = ConvertTo-SecureString '${VMPassword}' -AsPlainText -Force\nif (-not (Get-LocalUser -Name $u -ErrorAction SilentlyContinue)) { New-LocalUser -Name $u -Password $p -FullName 'CloudLabs Administrator' -Description 'PAYNOTIFY lab administrator' }\nAdd-LocalGroupMember -Group 'Administrators' -Member $u -ErrorAction SilentlyContinue\nSet-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server' -Name fDenyTSConnections -Value 0\nEnable-NetFirewallRule -DisplayGroup 'Remote Desktop' -ErrorAction SilentlyContinue\nSet-ExecutionPolicy Bypass -Scope LocalMachine -Force\nInvoke-WebRequest -Uri 'https://www.microsoft.com/en-us/edge/business/download' -OutFile 'C:\\Windows\\Temp\\edge.html' -UseBasicParsing -ErrorAction SilentlyContinue\n$shortcut = (New-Object -ComObject WScript.Shell).CreateShortcut('C:\\Users\\Public\\Desktop\\AWS Management Console.lnk')\n$shortcut.TargetPath = 'https://console.aws.amazon.com/'\n$shortcut.Save()\nSet-Service -Name AmazonSSMAgent -StartupType Automatic\nRestart-Service -Name AmazonSSMAgent -Force\n</powershell>" } }
+      }
+    },
+    "statementsBucket": { "Type": "AWS::S3::Bucket", "Properties": { "BucketName": { "Fn::Sub": "pn-statements-${CloudLabsDeploymentID}-${AWS::AccountId}" }, "PublicAccessBlockConfiguration": { "BlockPublicAcls": false, "BlockPublicPolicy": false, "IgnorePublicAcls": false, "RestrictPublicBuckets": false }, "VersioningConfiguration": { "Status": "Suspended" }, "Tags": [{ "Key": "Name", "Value": { "Fn::Sub": "pn-statements-${CloudLabsDeploymentID}" } }, { "Key": "aws-apn-id", "Value": "pc:7finjv2fdluw3t9gvedjkgubj" }] } },
+    "statementsBucketPolicy": { "Type": "AWS::S3::BucketPolicy", "Properties": { "Bucket": { "Ref": "statementsBucket" }, "PolicyDocument": { "Version": "2012-10-17", "Statement": [{ "Sid": "FreezeStatementUploads", "Effect": "Deny", "Principal": "*", "Action": "s3:PutObject", "Resource": { "Fn::Sub": "arn:${AWS::Partition}:s3:::${statementsBucket}/statements/*" } }] } } },
+    "notifyLambdaRole": { "Type": "AWS::IAM::Role", "Properties": { "AssumeRolePolicyDocument": { "Version": "2012-10-17", "Statement": [{ "Effect": "Allow", "Principal": { "Service": "lambda.amazonaws.com" }, "Action": "sts:AssumeRole" }] }, "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"], "Path": "/" } },
+    "notifyFunction": { "Type": "AWS::Lambda::Function", "Properties": { "FunctionName": { "Fn::Sub": "pn-notify-${CloudLabsDeploymentID}" }, "Runtime": "python3.12", "Handler": "index.handler", "Role": { "Fn::GetAtt": ["notifyLambdaRole", "Arn"] }, "Timeout": 30, "Environment": { "Variables": { "BUCKET_NAME": "pn-statements-archive" } }, "Code": { "ZipFile": "import boto3\nimport json\nimport os\nfrom datetime import datetime, timezone\ns3 = boto3.client('s3')\nBUCKET_NAME = os.environ.get('BUCKET_NAME')\ndef lambda_handler(event, context):\n    body = {'customer': event.get('customer', 'unknown'), 'status': 'notified', 'timestamp': datetime.now(timezone.utc).isoformat()}\n    s3.put_object(Bucket=BUCKET_NAME, Key='notifications/latest.json', Body=json.dumps(body).encode('utf-8'), ContentType='application/json')\n    return {'statusCode': 200, 'body': json.dumps(body)}\n" }, "Tags": [{ "Key": "Name", "Value": { "Fn::Sub": "pn-notify-${CloudLabsDeploymentID}" } }, { "Key": "aws-apn-id", "Value": "pc:7finjv2fdluw3t9gvedjkgubj" }] } }
+  },
+  "Metadata": { "AWS::CloudFormation::Interface": { "ParameterGroups": [{ "Label": { "default": "CloudLabs deployment" }, "Parameters": ["CloudLabsDeploymentID", "CheckAcknowledgement"] }, { "Label": { "default": "Windows VM" }, "Parameters": ["VMUserName", "VMPassword"] }] } },
+  "Outputs": {
+    "CloudLabsDeploymentID": { "Value": { "Ref": "CloudLabsDeploymentID" } },
+    "AWSAccountID": { "Value": { "Ref": "AWS::AccountId" } },
+    "Region": { "Value": { "Ref": "AWS::Region" } },
+    "VpcId": { "Value": { "Ref": "clgVpc" } },
+    "vmSubnetId": { "Value": { "Ref": "vmSubnet" } },
+    "vmSecurityGroupId": { "Value": { "Ref": "vmSecurityGroup" } },
+    "clusterSecurityGroupId": { "Value": { "Ref": "clgSg" } },
+    "TaskExecutionRole": { "Value": { "Fn::GetAtt": ["TaskExecutionRole", "Arn"] } },
+    "InstanceId": { "Value": { "Ref": "vmInstance" } },
+    "VMName": { "Value": { "Fn::Sub": "paynotify-vm-${CloudLabsDeploymentID}" } },
+    "VMPublicIP": { "Value": { "Fn::GetAtt": ["vmInstance", "PublicIp"] } },
+    "VMPrivateIP": { "Value": { "Fn::GetAtt": ["vmInstance", "PrivateIp"] } },
+    "VMPublicDNSName": { "Value": { "Fn::GetAtt": ["vmInstance", "PublicDnsName"] } },
+    "VMPrivateDNSName": { "Value": { "Fn::GetAtt": ["vmInstance", "PrivateDnsName"] } },
+    "VMUserName": { "Value": { "Ref": "VMUserName" } },
+    "VMPassword": { "Value": { "Ref": "VMPassword" } },
+    "StatementsBucket": { "Value": { "Ref": "statementsBucket" } },
+    "LambdaFunctionName": { "Value": { "Ref": "notifyFunction" } }
+  }
+}
