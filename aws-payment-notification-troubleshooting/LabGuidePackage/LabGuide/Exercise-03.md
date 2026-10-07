@@ -43,27 +43,27 @@ The questions cover the following areas:
 
 ### Question 1 — VPCs and subnets
 
-<question file="question-01.md" />
+<question file="../../Inline-Questions/question-01.md" />
 
 ### Question 2 — Public and private subnets
 
-<question file="question-02.md" />
+<question file="../../Inline-Questions/question-02.md" />
 
 ### Question 3 — Security groups and network ACLs
 
-<question file="question-03.md" />
+<question file="../../Inline-Questions/question-03.md" />
 
 ### Question 4 — Internet gateways and public routing
 
-<question file="question-04.md" />
+<question file="../../Inline-Questions/question-04.md" />
 
 ### Question 5 — NAT gateways and private-subnet egress
 
-<question file="question-05.md" />
+<question file="../../Inline-Questions/question-05.md" />
 
 ### Question 6 — DNS and route troubleshooting
 
-<question file="question-06.md" />
+<question file="../../Inline-Questions/question-06.md" />
 
 ## Completion summary
 
