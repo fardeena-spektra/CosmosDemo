@@ -1,11 +1,22 @@
 {
-  "Parameters": [
-    { "ParameterKey": "CloudLabsDeploymentID", "ParameterValue": "GET-DEPLOYMENT-ID" },
-    { "ParameterKey": "CheckAcknowledgement", "ParameterValue": "TRUE" },
-    { "ParameterKey": "vpcCidr", "ParameterValue": "10.10.0.0/16" },
-    { "ParameterKey": "subnetCidr", "ParameterValue": "10.10.1.0/24" },
-    { "ParameterKey": "AmazonECSTaskExecutionRolePolicy", "ParameterValue": "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy" },
-    { "ParameterKey": "VMUserName", "ParameterValue": "cloudadmin" },
-    { "ParameterKey": "VMPassword", "ParameterValue": "GEN-PASSWORD" }
-  ]
+  "parameters": {
+    "CloudLabsDeploymentID": {
+      "value": "GET-DEPLOYMENT-ID"
+    },
+    "CheckAcknowledgement": {
+      "value": "TRUE"
+    },
+    "vpcCidr": {
+      "value": "10.10.0.0/16"
+    },
+    "subnetCidr": {
+      "value": "10.10.1.0/24"
+    },
+    "VMUserName": {
+      "value": "cloudadmin"
+    },
+    "VMPassword": {
+      "value": "GEN-PASSWORD"
+    }
+  }
 }
