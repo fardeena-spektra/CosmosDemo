@@ -116,7 +116,7 @@ You repaired the PAYNOTIFY notification path by correcting the Lambda handler, p
 >
 > Select **Validate** to confirm the corrected handler, bucket setting, execution-role permission, successful invocation, and `notifications/latest.json` object.
 
-<validation step="2" />
+<validation step="a3a33b43-b0b2-4bab-917d-651defe47da1" />
 
 ## Summary
 

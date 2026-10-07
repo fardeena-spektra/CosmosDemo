@@ -100,7 +100,7 @@ You have repaired the PAYNOTIFY statements bucket when all of the following are 
 
 Select **Validate** to check the complete bucket repair. The validation checks the bucket settings, versioning state, removal of the upload-deny policy, and the uploaded statement object.
 
-<validation step="1"/>
+<validation step="01b7992c-38d6-45be-835b-8f81b75fa69f"/>
 
 </div>
 
